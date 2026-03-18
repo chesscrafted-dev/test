@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-bg-app: var(--bg-app);
+  --color-bg-card: var(--bg-card);
+  --color-bg-input: var(--bg-input);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+}
+
+:root {
+  /* Midnight (Classic) */
+  --brand-primary: #6366f1;
+  --brand-secondary: #4338ca;
+  --bg-app: #09090b;
+  --bg-card: #121214;
+  --bg-input: #1c1c21;
+  --text-main: #fafafa;
+  --text-muted: #71717a;
+  --border-subtle: #27272a;
+}
+
+[data-theme="insta"] {
+  /* Instagram Dark */
+  --brand-primary: #e1306c;
+  --brand-secondary: #f77737;
+  --bg-app: #000000;
+  --bg-card: #121212;
+  --bg-input: #262626;
+  --text-main: #ffffff;
+  --text-muted: #a8a8a8;
+  --border-subtle: #262626;
+}
+
+[data-theme="love"] {
+  /* Love (Dark Edition) */
+  --brand-primary: #fb7185; /* rose-400 */
+  --brand-secondary: #e11d48; /* rose-600 */
+  --bg-app: #0f0a0b; 
+  --bg-card: #1a1214;
+  --bg-input: #2a1a1d;
+  --text-main: #fff1f2;
+  --text-muted: #9f1239;
+  --border-subtle: #311b1e;
+}
+
+[data-theme="cyberpunk"] {
+  /* Cyberpunk Neon */
+  --brand-primary: #fdf500; /* yellow */
+  --brand-secondary: #00ff9f; /* cyan */
+  --bg-app: #000000;
+  --bg-card: #050505;
+  --bg-input: #0d0d0d;
+  --text-main: #00ff9f;
+  --text-muted: #008f11;
+  --border-subtle: #39ff14;
+}
+
+[data-theme="ocean"] {
+  /* Deep Sea */
+  --brand-primary: #0ea5e9; /* sky-500 */
+  --brand-secondary: #0369a1; /* sky-700 */
+  --bg-app: #020617; 
+  --bg-card: #0f172a;
+  --bg-input: #1e293b;
+  --text-main: #f0f9ff;
+  --text-muted: #38bdf8;
+  --border-subtle: #1e293b;
+}
+
+[data-theme="matrix"] {
+  /* Matrix Code */
+  --brand-primary: #22c55e;
+  --brand-secondary: #15803d;
+  --bg-app: #050505;
+  --bg-card: #0a0a0a;
+  --bg-input: #111111;
+  --text-main: #22c55e;
+  --text-muted: #166534;
+  --border-subtle: #166534;
+}
+
+[data-theme="gold"] {
+  /* Minimalist Gold */
+  --brand-primary: #d4af37;
+  --brand-secondary: #996515;
+  --bg-app: #0a0a0a;
+  --bg-card: #111111;
+  --bg-input: #1a1a1a;
+  --text-main: #ffffff;
+  --text-muted: #d4af37;
+  --border-subtle: #262626;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.bg-gradient-brand {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+}
+
+.text-gradient-brand {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Premium Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary);
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(to right, var(--bg-input) 8%, var(--border-subtle) 18%, var(--bg-input) 33%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.scale-in {
+  animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
