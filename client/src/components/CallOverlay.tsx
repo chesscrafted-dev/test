@@ -10,7 +10,6 @@ interface CallOverlayProps {
 
 const CallOverlay: React.FC<CallOverlayProps> = ({ onClose, incomingCall, outgoingCallTo, chatId }) => {
   const [callState, setCallState] = useState<'RINGING' | 'OFFERING' | 'CONNECTED' | 'ENDED'>('RINGING');
-  const [debugStatus, setDebugStatus] = useState('Initializing P2P...');
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   
   const pc = useRef<RTCPeerConnection | null>(null);
@@ -146,7 +145,6 @@ const CallOverlay: React.FC<CallOverlayProps> = ({ onClose, incomingCall, outgoi
 
     pc.current.oniceconnectionstatechange = () => {
         const state = pc.current?.iceConnectionState;
-        setDebugStatus(`Network: ${state}`);
         if (state === 'connected' || state === 'completed') setCallState('CONNECTED');
     };
 
