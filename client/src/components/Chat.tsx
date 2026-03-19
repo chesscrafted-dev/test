@@ -70,7 +70,7 @@ const EncryptedImage: React.FC<{ url: string; iv: string; authTag: string; crypt
         const encryptedBlob = await mediaApi.fetchBlob(url);
         const decryptedUint8 = await decryptFile(encryptedBlob, iv, authTag, cryptoKey);
         if (decryptedUint8) {
-          const blob = new Blob([decryptedUint8]);
+          const blob = new Blob([decryptedUint8 as any]);
           objectUrl = URL.createObjectURL(blob);
           setSrc(objectUrl);
         }
@@ -279,13 +279,6 @@ const Chat: React.FC<ChatProps> = ({ currentUserId }) => {
     } finally { setIsUploading(false); }
     };
 
-  const closeChat = () => {
-    setSelectedUser(null);
-    setChatId(null);
-    setActiveChatKey(null);
-    setMessages([]);
-  };
-
   const changeChatTheme = (t: string) => {
     if (chatId) {
         socketService.sendThemeChange(chatId, t);
@@ -319,7 +312,6 @@ const Chat: React.FC<ChatProps> = ({ currentUserId }) => {
     <div className="flex w-full h-full bg-bg-app overflow-hidden relative text-text-main">
       {(incomingCall || outgoingCall) && (
         <CallOverlay 
-          currentUserId={currentUserId}
           incomingCall={incomingCall}
           outgoingCallTo={outgoingCall}
           onClose={() => { setIncomingCall(null); setOutgoingCall(null); }}
@@ -411,14 +403,14 @@ const Chat: React.FC<ChatProps> = ({ currentUserId }) => {
                   </div>
               )}
 
-              <div className="w-20 h-20 bg-brand-primary/10 rounded-3xl flex items-center justify-center text-brand-primary mx-auto mb-10 shadow-inner">
-                <svg className="w-10 h-10 shadow-indigo-500/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <div className="w-20 h-20 bg-brand-primary/10 rounded-3xl flex items-center justify-center text-brand-primary mx-auto mb-10 shadow-inner text-white">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
               </div>
               <h3 className="text-3xl font-black mb-3 tracking-tighter uppercase italic">Secure Handshake</h3>
               <p className="text-text-muted text-[13px] mb-10 leading-relaxed font-medium">Synchronize local keys with <strong>@{selectedUser?.username}</strong></p>
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                <input type="password" placeholder="Shared Secret Key" className="w-full px-4 py-5 bg-bg-input border border-border-subtle rounded-2xl text-center text-xl tracking-[0.5rem] focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all placeholder:tracking-normal placeholder:text-[10px] placeholder:uppercase placeholder:font-black shadow-inner" value={chatPassword} onChange={(e) => setChatPassword(e.target.value)} autoFocus autoComplete="new-password" />
-                <button type="submit" disabled={isDerivingKey} className="w-full py-5 bg-gradient-brand text-white font-black rounded-2xl shadow-xl shadow-brand-primary/30 active:scale-[0.98] transition-all uppercase tracking-[0.2em] text-[10px]">{isDerivingKey ? 'Encrypting...' : 'Initiate Session'}</button>
+                <input type="password" placeholder="Shared Secret Key" className="w-full px-4 py-5 bg-bg-input border border-border-subtle rounded-[1.5rem] text-center text-xl tracking-[0.5rem] focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all placeholder:tracking-normal placeholder:text-[10px] placeholder:uppercase placeholder:font-black shadow-inner" value={chatPassword} onChange={(e) => setChatPassword(e.target.value)} autoFocus autoComplete="new-password" />
+                <button type="submit" disabled={isDerivingKey} className="w-full py-5 bg-gradient-brand text-white font-black rounded-[1.5rem] shadow-xl shadow-brand-primary/30 active:scale-[0.98] transition-all uppercase tracking-[0.2em] text-[10px]">{isDerivingKey ? 'Encrypting...' : 'Initiate Session'}</button>
                 <button type="button" className="text-text-muted text-[10px] font-black uppercase tracking-[0.2em] mt-6 hover:text-text-main transition-colors" onClick={() => { setShowPasswordPrompt(false); setSelectedUser(null); }}>Terminate Link</button>
               </form>
             </div>

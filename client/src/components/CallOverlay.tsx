@@ -2,14 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as socketService from '../services/socket';
 
 interface CallOverlayProps {
-  currentUserId: string;
   onClose: () => void;
   incomingCall?: { from: string; offer: any; type: 'video' | 'voice'; chat_id: string } | null;
   outgoingCallTo?: { user_id: string; username: string; type: 'video' | 'voice' } | null;
   chatId: string;
 }
 
-const CallOverlay: React.FC<CallOverlayProps> = ({ currentUserId, onClose, incomingCall, outgoingCallTo, chatId }) => {
+const CallOverlay: React.FC<CallOverlayProps> = ({ onClose, incomingCall, outgoingCallTo, chatId }) => {
   const [callState, setCallState] = useState<'RINGING' | 'OFFERING' | 'CONNECTED' | 'ENDED'>('RINGING');
   
   const pc = useRef<RTCPeerConnection | null>(null);
@@ -38,7 +37,7 @@ const CallOverlay: React.FC<CallOverlayProps> = ({ currentUserId, onClose, incom
 
     socketService.onIceCandidate(({ candidate }) => {
         if (pc.current && pc.current.remoteDescription) {
-            pc.current.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => {});
+            pc.current.addIceCandidate(new RTCIceCandidate(candidate)).catch(() => {});
         }
     });
 
@@ -62,7 +61,6 @@ const CallOverlay: React.FC<CallOverlayProps> = ({ currentUserId, onClose, incom
         oscillator.current.frequency.setValueAtTime(440, audioCtx.current.currentTime);
         
         gainNode.gain.setValueAtTime(0.1, audioCtx.current.currentTime);
-        // Create an intermittent beep
         gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.current.currentTime + 1.5);
         
         oscillator.current.connect(gainNode);
@@ -70,7 +68,6 @@ const CallOverlay: React.FC<CallOverlayProps> = ({ currentUserId, onClose, incom
         
         oscillator.current.start();
         
-        // Loop the beep
         const interval = setInterval(() => {
             if (!oscillator.current || !audioCtx.current) {
                 clearInterval(interval);

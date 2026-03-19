@@ -65,16 +65,13 @@ export async function encryptMessage(
   const enc = new TextEncoder();
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
   
-  // Web Crypto AES-GCM appends the auth tag to the end of the ciphertext
   const encryptedBuffer = await window.crypto.subtle.encrypt(
-    { name: "AES-GCM", iv: iv },
+    { name: "AES-GCM", iv: iv as any },
     key,
     enc.encode(plaintext)
   );
 
   const encryptedArray = new Uint8Array(encryptedBuffer);
-  
-  // AES-GCM in Web Crypto: Last 16 bytes are the auth tag
   const tagLength = 16;
   const ciphertext = encryptedArray.slice(0, encryptedArray.length - tagLength);
   const authTag = encryptedArray.slice(encryptedArray.length - tagLength);
@@ -100,14 +97,13 @@ export async function decryptMessage(
   const iv = hexToUint8Array(ivHex);
   const authTag = hexToUint8Array(authTagHex);
 
-  // Reconstruct the buffer (ciphertext + auth_tag) for Web Crypto
   const combined = new Uint8Array(ciphertext.length + authTag.length);
   combined.set(ciphertext);
   combined.set(authTag, ciphertext.length);
 
   try {
     const decryptedBuffer = await window.crypto.subtle.decrypt(
-      { name: "AES-GCM", iv: iv },
+      { name: "AES-GCM", iv: iv as any },
       key,
       combined
     );
@@ -130,7 +126,7 @@ export async function encryptFile(
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
 
   const encryptedBuffer = await window.crypto.subtle.encrypt(
-    { name: "AES-GCM", iv: iv },
+    { name: "AES-GCM", iv: iv as any },
     key,
     fileBuffer
   );
@@ -167,7 +163,7 @@ export async function decryptFile(
 
   try {
     const decryptedBuffer = await window.crypto.subtle.decrypt(
-      { name: "AES-GCM", iv: iv },
+      { name: "AES-GCM", iv: iv as any },
       key,
       combined
     );

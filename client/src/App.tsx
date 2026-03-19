@@ -9,7 +9,7 @@ type Theme = 'midnight' | 'insta' | 'love' | 'matrix';
 
 function App() {
   const [state, setState] = useState<AppState>('LOGIN');
-  const [theme, setTheme] = useState<Theme>((localStorage.getItem('app-theme') as Theme) || 'midnight');
+  const [theme] = useState<Theme>((localStorage.getItem('app-theme') as Theme) || 'midnight');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
