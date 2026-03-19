@@ -1,21 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const crypto = require('crypto');
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  connectionTimeout: 30000, // 30 seconds
-  greetingTimeout: 30000,
-  debug: true,
-  logger: true
-});
 
 router.post('/request-otp', async (req, res) => {
   try {
@@ -42,18 +29,25 @@ router.post('/request-otp', async (req, res) => {
     console.log('OTP saved to DB');
 
     try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Your E2EE Chat OTP',
-        text: `Your OTP is: ${otp}`
+      const scriptUrl = process.env.G_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbykBSYPbWa200OaeXmcbC-UztHwlk7RZKEJkCAaQ87yPnxKwZnsWdGENJdaAxYKqMxt/exec';
+      
+      const response = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'text/plain;charset=utf-8', 
+        },
+        body: JSON.stringify({ to: email, otp: otp }),
+        redirect: 'follow' // Crucial for Google Apps Script
       });
-      console.log('Email sent successfully');
+
+      if (!response.ok) {
+          throw new Error(`Google Script Error: ${response.statusText}`);
+      }
+
+      console.log('OTP sent successfully via Google Apps Script');
       res.json({ message: 'OTP sent' });
     } catch (err) {
-      console.error('Nodemailer Error:', err.message);
-      // Even if email fails, we don't want to crash the whole process
-      // But we tell the user it failed
+      console.error('Email Proxy Error:', err.message);
       res.status(500).json({ error: 'Email sending failed', details: err.message });
     }
   } catch (err) {
