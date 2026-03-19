@@ -7,17 +7,14 @@ const crypto = require('crypto');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // Use STARTTLS
+  port: 465,
+  secure: true, // Use SSL
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
-  tls: {
-    rejectUnauthorized: false // Helps with certain cloud network restrictions
-  },
-  connectionTimeout: 10000, // 10 seconds
-  greetingTimeout: 10000,
+  debug: true, // Show detailed handshake logs
+  logger: true // Log to console
 });
 
 router.post('/request-otp', async (req, res) => {
