@@ -4,16 +4,17 @@ import { initiateSocket, disconnectSocket } from './services/socket';
 import Profile from './components/Profile';
 import Chat from './components/Chat';
 
-type AppState = 'LOGIN' | 'OTP' | 'PROFILE' | 'CHAT' | 'EDIT_PROFILE';
+type AppState = 'LOADING' | 'LOGIN' | 'OTP' | 'PROFILE' | 'CHAT' | 'EDIT_PROFILE';
 type Theme = 'midnight' | 'insta' | 'love' | 'matrix';
 
 function App() {
-  const [state, setState] = useState<AppState>('LOGIN');
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [userId, setUserId] = useState<string | null>(localStorage.getItem('user_id'));
+  // Default to LOADING if we have a token, otherwise LOGIN
+  const [state, setState] = useState<AppState>(token ? 'LOADING' : 'LOGIN');
   const [theme] = useState<Theme>((localStorage.getItem('app-theme') as Theme) || 'midnight');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [userId, setUserId] = useState<string | null>(localStorage.getItem('user_id'));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,6 +26,8 @@ function App() {
     if (token) {
       checkProfileStatus();
       initiateSocket(token);
+    } else {
+        setState('LOGIN');
     }
     return () => disconnectSocket();
   }, [token]);
@@ -37,9 +40,17 @@ function App() {
       } else {
         setState('CHAT');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Profile check failed", err);
-      setState('LOGIN');
+      // Only kick to login if the error is 401 (Unauthorized/Token Expired)
+      // Otherwise (like server sleeping), stay in LOADING or CHAT state
+      if (err.response?.status === 401) {
+          handleLogout();
+      } else if (token) {
+          // Fallback: If server is down but we have a token, 
+          // assume we are in CHAT state to prevent flickering
+          setState('CHAT');
+      }
     }
   };
 
@@ -64,8 +75,8 @@ function App() {
       const data = await authApi.verifyOtp(email, otp);
       localStorage.setItem('token', data.token);
       localStorage.setItem('user_id', data.user_id);
-      setToken(data.token);
       setUserId(data.user_id);
+      setToken(data.token); // This triggers the useEffect to check profile
     } catch (err) {
       alert('Invalid OTP.');
       console.error(err);
@@ -85,6 +96,13 @@ function App() {
 
   const renderContent = () => {
     switch (state) {
+      case 'LOADING':
+        return (
+            <div className="flex flex-col items-center animate-pulse">
+              <div className="w-12 h-12 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin mb-4"></div>
+              <p className="text-text-muted font-black uppercase tracking-[0.2em] text-xs">Resuming Session...</p>
+            </div>
+          );
       case 'LOGIN':
         return (
           <div className="w-full max-w-md p-6 md:p-8 bg-bg-card rounded-2xl shadow-2xl border border-border-subtle animate-in fade-in zoom-in duration-300 mx-4">
@@ -150,12 +168,7 @@ function App() {
       case 'CHAT':
         return userId ? <Chat currentUserId={userId} /> : null;
       default:
-        return (
-          <div className="flex flex-col items-center">
-            <div className="w-10 h-10 md:w-12 md:h-12 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin mb-4"></div>
-            <p className="text-text-muted font-medium text-sm">Initializing secure session...</p>
-          </div>
-        );
+        return null;
     }
   };
 
@@ -163,15 +176,13 @@ function App() {
     <div className="flex flex-col h-screen bg-bg-app text-text-main selection:bg-brand-primary/30 overflow-hidden transition-colors duration-300">
       <header className="shrink-0 backdrop-blur-md bg-bg-app/50 border-b border-border-subtle px-4 md:px-6 py-3 md:py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2 md:gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-brand rounded-lg flex items-center justify-center shadow-lg shadow-brand-primary/20">
-                <span className="text-white font-bold text-xs md:text-base">P</span>
-              </div>
-              <h1 className="text-lg md:text-xl font-bold text-gradient-brand hidden sm:block">
-                PrivateChat
-              </h1>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-brand rounded-lg flex items-center justify-center shadow-lg shadow-brand-primary/20">
+              <span className="text-white font-bold text-xs md:text-base">P</span>
             </div>
+            <h1 className="text-lg md:text-xl font-bold text-gradient-brand hidden sm:block">
+              PrivateChat
+            </h1>
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
