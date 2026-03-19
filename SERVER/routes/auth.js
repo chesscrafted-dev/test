@@ -6,15 +6,15 @@ const User = require('../models/User');
 const crypto = require('crypto');
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // Use SSL
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
-  debug: true, // Show detailed handshake logs
-  logger: true // Log to console
+  connectionTimeout: 30000, // 30 seconds
+  greetingTimeout: 30000,
+  debug: true,
+  logger: true
 });
 
 router.post('/request-otp', async (req, res) => {
